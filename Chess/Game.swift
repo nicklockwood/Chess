@@ -128,8 +128,8 @@ extension Game {
                 case .idle where newScore == bestScore:
                     // All other things being equal, try to get pawn to other side
                     if let bestMove = bestMove,
-                        newBoard.board.piece(at: to)?.type == .pawn,
-                        board.piece(at: from)?.type != .pawn ||
+                        board.piece(at: from)?.type == .pawn,
+                        board.piece(at: bestMove.from)?.type != .pawn ||
                         (color == .black && to.y > bestMove.to.y) ||
                         (color == .white && to.y < bestMove.to.y) {
                         break
