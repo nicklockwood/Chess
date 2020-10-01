@@ -116,7 +116,7 @@ extension Game {
                 }
             case .idle:
                 var worstLossRisk = 0
-                newBoard.board.enumerateThreats { position, piece, _ in
+                newBoard.board.enumerateThreats(for: color) { position, piece, _ in
                     worstLossRisk = max(worstLossRisk, piece.type.value)
                 }
                 newScore -= Double(worstLossRisk) * 0.9
@@ -207,10 +207,10 @@ private extension Board {
         }
     }
 
-    func enumerateThreats(fn: (Position, Piece, inout Bool) -> Void) {
+    func enumerateThreats(for color: Color, fn: (Position, Piece, inout Bool) -> Void) {
         var shouldBreak = false
         for (y, row) in pieces.enumerated() {
-            for (x, piece) in row.enumerated() {
+            for (x, piece) in row.enumerated() where piece?.color == color {
                 let position = Position(x: x, y: y)
                 if let piece = piece, pieceIsThreatened(at: position) {
                     fn(position, piece, &shouldBreak)
