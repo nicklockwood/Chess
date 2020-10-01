@@ -1,3 +1,4 @@
+[![Travis](https://api.travis-ci.org/nicklockwood/Chess.svg?branch=master)](https://travis-ci.org/nicklockwood/Chess)
 [![Platforms](https://img.shields.io/badge/platforms-iOS-lightgray.svg)]()
 [![Swift 5.2](https://img.shields.io/badge/swift-5.2-red.svg?style=flat)](https://developer.apple.com/swift)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://opensource.org/licenses/MIT)
