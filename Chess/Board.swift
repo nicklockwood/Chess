@@ -129,6 +129,12 @@ extension Board {
         self.pieces = pieces
     }
 
+    mutating func removePiece(at position: Position) {
+        var pieces = self.pieces
+        pieces[position.y][position.x] = nil
+        self.pieces = pieces
+    }
+
     mutating func promotePiece(at position: Position, to type: PieceType) {
         var piece = self.piece(at: position)
         piece?.type = type

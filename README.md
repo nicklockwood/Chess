@@ -18,7 +18,7 @@ You can choose between human vs human, human vs computer, or computer vs compute
 To-Do List
 -----------
 
-* Support castling and en passant maneuvers
+* Implement castling maneuver
 * Persist the game state when the app is closed
 * Let user choose piece when pawn reaches other side instead of always promoting to a queen
 * Add speed and intelligence settings for AI
