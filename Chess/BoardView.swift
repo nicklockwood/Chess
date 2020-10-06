@@ -104,7 +104,7 @@ class BoardView: UIView {
                 usedIDs.insert(piece.id)
                 view.image = UIImage(named: piece.imageName)
                 view.frame = frame(x: j, y: i, size: size)
-                view.transform3D = CATransform3DMakeScale(0.8, 0.8, 0)
+                view.layer.transform = CATransform3DMakeScale(0.8, 0.8, 0)
             }
         }
         for (id, view) in pieces where !usedIDs.contains(id) {
@@ -132,7 +132,7 @@ class BoardView: UIView {
                 let view = moveIndicators[i * 8 + j]
                 view.frame = frame(x: j, y: i, size: size)
                 view.layer.cornerRadius = size.width / 2
-                view.transform3D = CATransform3DMakeScale(0.2, 0.2, 0)
+                view.layer.transform = CATransform3DMakeScale(0.2, 0.2, 0)
                 view.alpha = moves.contains(position) ? 0.5 : 0
             }
         }
