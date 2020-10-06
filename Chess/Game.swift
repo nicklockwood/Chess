@@ -19,16 +19,31 @@ enum GameState {
 
 struct Game {
     private(set) var board: Board
-    private(set) var turn: Color
-    private(set) var state: GameState
     private(set) var history: [Move]
 }
 
 extension Game {
+    var turn: Color {
+        return history.last.flatMap {
+            board.piece(at: $0.to)?.color.other
+        } ?? .white
+    }
+
+    var state: GameState {
+        let color = turn
+        let canMove = allMoves(for: color).contains(where: { move in
+            var newBoard = self
+            newBoard.board.movePiece(from: move.from, to: move.to)
+            return !newBoard.kingIsInCheck(for: color)
+        })
+        if kingIsInCheck(for: color) {
+            return canMove ? .check : .checkMate
+        }
+        return canMove ? .idle : .staleMate
+    }
+
     init() {
         board = Board()
-        turn = .white
-        state = .idle
         history = []
     }
 
@@ -122,8 +137,6 @@ extension Game {
             board.removePiece(at: Position(x: to.x, y: to.y - (to.y - from.y)))
         }
         board.movePiece(from: from, to: to)
-        turn = turn.other
-        state = gameState(for: turn)
         history.append(Move(from: from, to: to))
     }
 
@@ -139,7 +152,6 @@ extension Game {
     mutating func promotePiece(at position: Position, to type: PieceType) {
         assert(canPromotePiece(at: position))
         board.promotePiece(at: position, to: type)
-        state = gameState(for: turn)
     }
 
     func movesForPiece(at position: Position) -> [Position] {
@@ -238,18 +250,6 @@ private extension Game {
         return board.allPieces.lazy.filter { position, piece in
             return piece.color == color && self.pieceIsThreatened(at: position)
         }
-    }
-
-    func gameState(for color: Color) -> GameState {
-        let canMove = allMoves(for: color).contains(where: { move in
-            var newBoard = self
-            newBoard.board.movePiece(from: move.from, to: move.to)
-            return !newBoard.kingIsInCheck(for: color)
-        })
-        if kingIsInCheck(for: color) {
-            return canMove ? .check : .checkMate
-        }
-        return canMove ? .idle : .staleMate
     }
 
     func pawnCanTake(from: Position, with delta: Delta) -> Bool {
