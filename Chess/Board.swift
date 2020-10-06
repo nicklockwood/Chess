@@ -93,6 +93,18 @@ struct Board: Equatable {
 }
 
 extension Board {
+    static let allPositions = (0 ..< 8).flatMap { y in
+        (0 ..< 8).map { Position(x: $0, y: y) }
+    }
+
+    var allPositions: [Position] { return Self.allPositions }
+
+    var allPieces: [(position: Position, piece: Piece)] {
+        return allPositions.compactMap { position in
+            pieces[position.y][position.x].map { (position, $0) }
+        }
+    }
+
     init() {
         pieces = [
             ["BR0", "BN1", "BB2", "BQ3", "BK4", "BB5", "BN6", "BR7"],
@@ -114,12 +126,7 @@ extension Board {
     }
 
     func firstPosition(where condition: (Piece) -> Bool) -> Position? {
-        for (y, row) in pieces.enumerated() {
-            for case let (x, piece?) in row.enumerated() where condition(piece) {
-                return Position(x: x, y: y)
-            }
-        }
-        return nil
+        return allPieces.first(where: { condition($1) })?.position
     }
 
     mutating func movePiece(from: Position, to: Position) {

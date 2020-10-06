@@ -103,15 +103,7 @@ extension Game {
     }
 
     func pieceIsThreatened(at position: Position) -> Bool {
-        for y in 0 ..< 8 {
-            for x in 0 ..< 8 {
-                let source = Position(x: x, y: y)
-                if canMove(from: source, to: position) {
-                    return true
-                }
-            }
-        }
-        return false
+        return board.allPositions.contains(where: { canMove(from: $0, to: position) })
     }
 
     func kingIsInCheck(for color: Color) -> Bool {
@@ -151,9 +143,7 @@ extension Game {
     }
 
     func movesForPiece(at position: Position) -> [Position] {
-        return board.potentialMovesForPiece(at: position).filter {
-            canMove(from: position, to: $0)
-        }
+        return board.allPositions.filter { canMove(from: position, to: $0) }
     }
 
     // MARK: AI
@@ -162,15 +152,15 @@ extension Game {
         var bestMove: Move?
         var bestState: GameState?
         var bestScore = 0.0
-        enumerateMoves(for: color) { from, to, shouldBreak in
+        for move in allMoves(for: color).shuffled() {
             var newBoard = self
-            newBoard.move(from: from, to: to)
+            newBoard.move(from: move.from, to: move.to)
             if newBoard.kingIsInCheck(for: color) {
-                return
+                continue
             }
-            var newScore = Double(board.piece(at: to)?.type.value ?? 0)
-            if newBoard.canPromotePiece(at: to) {
-                newBoard.promotePiece(at: to, to: .queen)
+            var newScore = Double(board.piece(at: move.to)?.type.value ?? 0)
+            if newBoard.canPromotePiece(at: move.to) {
+                newBoard.promotePiece(at: move.to, to: .queen)
                 newScore += 8
             }
             switch newBoard.state {
@@ -178,11 +168,11 @@ extension Game {
                 break
             case .staleMate:
                 if bestMove != nil {
-                    return
+                    continue
                 }
             case .check:
-                if newBoard.pieceIsThreatened(at: to),
-                    let piece = newBoard.board.piece(at: to) {
+                if newBoard.pieceIsThreatened(at: move.to),
+                    let piece = newBoard.board.piece(at: move.to) {
                     newScore -= Double(piece.type.value) * 0.9
                 }
                 switch bestState {
@@ -191,11 +181,11 @@ extension Game {
                      .staleMate, nil:
                     break
                 case .check, .checkMate, .idle:
-                    return
+                    continue
                 }
             case .idle:
                 var worstLossRisk = 0
-                newBoard.enumerateThreats(for: color) { position, piece, _ in
+                for (_, piece) in newBoard.allThreats(for: color) {
                     worstLossRisk = max(worstLossRisk, piece.type.value)
                 }
                 newScore -= Double(worstLossRisk) * 0.9
@@ -207,22 +197,22 @@ extension Game {
                 case .idle where newScore == bestScore:
                     // All other things being equal, try to get pawn to other side
                     if let bestMove = bestMove,
-                        board.piece(at: from)?.type == .pawn,
+                        board.piece(at: move.from)?.type == .pawn,
                         board.piece(at: bestMove.from)?.type != .pawn ||
-                        (color == .black && to.y > bestMove.to.y) ||
-                        (color == .white && to.y < bestMove.to.y) {
+                            (color == .black && move.to.y > bestMove.to.y) ||
+                            (color == .white && move.to.y < bestMove.to.y) {
                         break
                     }
-                    return
+                    continue
                 case .check, .checkMate, .idle:
-                    return
+                    continue
                 }
             }
             if bestMove != nil, history.count > 1,
-                history.dropLast().last == Move(from: to, to: from) {
-                return
+                history.dropLast().last == Move(from: move.to, to: move.from) {
+                continue
             }
-            bestMove = Move(from: from, to: to)
+            bestMove = move
             bestState = newBoard.state
             bestScore = newScore
         }
@@ -231,64 +221,32 @@ extension Game {
 }
 
 private extension Game {
-    func enumerateMoves(for color: Color,
-                        fn: (Position, Position, inout Bool) -> Void) {
-        var shouldBreak = false
-        for y in (0 ..< 8).shuffled() {
-            for x in (0 ..< 8).shuffled() {
-                let position = Position(x: x, y: y)
-                guard board.piece(at: position)?.color == color else {
-                    continue
-                }
-                enumerateMoves(for: position, shouldBreak: &shouldBreak) {
-                    fn(position, $0, &$1)
-                }
-                if shouldBreak {
-                    return
-                }
-            }
-        }
+    func allMoves(for color: Color) ->
+        LazySequence<FlattenSequence<LazyMapSequence<[Position], LazyFilterSequence<[Move]>>>> {
+        return board.allPieces
+            .compactMap { $1.color == color ? $0 : nil }
+            .lazy.flatMap { self.allMoves(for: $0) }
     }
 
-    func enumerateMoves(for position: Position, shouldBreak: inout Bool,
-                        fn: (Position, inout Bool) -> Void) {
-        for y in (0 ..< 8).shuffled() {
-            for x in (0 ..< 8).shuffled() {
-                let destination = Position(x: x, y: y)
-                if canMove(from: position, to: destination) {
-                    fn(destination, &shouldBreak)
-                    if shouldBreak {
-                        return
-                    }
-                }
-            }
-        }
+    func allMoves(for position: Position) -> LazyFilterSequence<[Move]> {
+        return board.allPositions
+            .map { Move(from: position, to: $0) }
+            .lazy.filter { self.canMove(from: $0.from, to: $0.to) }
     }
 
-    func enumerateThreats(for color: Color, fn: (Position, Piece, inout Bool) -> Void) {
-        board.enumeratePieces(for: color) { position, piece, shouldBreak in
-            if pieceIsThreatened(at: position) {
-                fn(position, piece, &shouldBreak)
-            }
+    func allThreats(for color: Color) -> LazyFilterSequence<[(position: Position, piece: Piece)]> {
+        return board.allPieces.lazy.filter { position, piece in
+            return piece.color == color && self.pieceIsThreatened(at: position)
         }
     }
 
     func gameState(for color: Color) -> GameState {
-        guard let position = board.firstPosition(where: {
-            $0.type == .king && $0.color == color
-        }) else {
-            return .idle
-        }
-        var canMove = false
-        enumerateMoves(for: color) { from, to, shouldBreak in
+        let canMove = allMoves(for: color).contains(where: { move in
             var newBoard = self
-            newBoard.board.movePiece(from: from, to: to)
-            if !newBoard.kingIsInCheck(for: color) {
-                canMove = true
-                shouldBreak = true
-            }
-        }
-        if pieceIsThreatened(at: position) {
+            newBoard.board.movePiece(from: move.from, to: move.to)
+            return !newBoard.kingIsInCheck(for: color)
+        })
+        if kingIsInCheck(for: color) {
             return canMove ? .check : .checkMate
         }
         return canMove ? .idle : .staleMate
@@ -326,21 +284,6 @@ private extension Game {
 }
 
 private extension Board {
-    func enumeratePieces(for color: Color, fn: (Position, Piece, inout Bool) -> Void) {
-        var shouldBreak = false
-        for (y, row) in pieces.enumerated() {
-            for (x, piece) in row.enumerated() where piece?.color == color {
-                let position = Position(x: x, y: y)
-                if let piece = piece {
-                    fn(position, piece, &shouldBreak)
-                    if shouldBreak {
-                        return
-                    }
-                }
-            }
-        }
-    }
-
     func piecesExist(between: Position, and: Position) -> Bool {
         let step = Delta(
             x: between.x > and.x ? -1 : (between.x < and.x ? 1 : 0),
@@ -355,69 +298,5 @@ private extension Board {
             position += step
         }
         return false
-    }
-
-    func potentialMovesForPiece(at position: Position) -> [Position] {
-        guard let this = piece(at: position) else {
-            return []
-        }
-        switch this.type {
-        case .pawn:
-            switch this.color {
-            case .white:
-                return [
-                    position + Delta(x: -1, y: -1),
-                    position + Delta(x: 0, y: -1),
-                    position + Delta(x: 0, y: -2),
-                    position + Delta(x: 1, y: -1),
-                ]
-            case .black:
-                return [
-                    position + Delta(x: -1, y: 1),
-                    position + Delta(x: 0, y: 1),
-                    position + Delta(x: 0, y: 2),
-                    position + Delta(x: 1, y: 1),
-                ]
-            }
-        case .rook:
-            return (0 ..< 8).flatMap {
-                [Position(x: position.x, y: $0), Position(x: $0, y: position.y)]
-            }
-        case .bishop:
-            return (-7 ..< 7).flatMap {
-                [position + Delta(x: $0, y: $0), position + Delta(x: $0, y: -$0)]
-            }
-        case .queen:
-            return (-7 ..< 7).flatMap {
-                [
-                    position + Delta(x: 0, y: $0),
-                    position + Delta(x: $0, y: $0),
-                    position + Delta(x: $0, y: -$0),
-                    position + Delta(x: $0, y: 0),
-                ]
-            }
-        case .king:
-            return [
-                position + Delta(x: -1, y: -1),
-                position + Delta(x: 0, y: -1),
-                position + Delta(x: 1, y: -1),
-                position + Delta(x: 1, y: 0),
-                position + Delta(x: 1, y: 1),
-                position + Delta(x: 0, y: 1),
-                position + Delta(x: -1, y: 1),
-                position + Delta(x: -1, y: 0),
-            ]
-        case .knight:
-            return [
-                position + Delta(x: 1, y: 2),
-                position + Delta(x: -1, y: 2),
-                position + Delta(x: 2, y: 1),
-                position + Delta(x: -2, y: 1),
-                position + Delta(x: 1, y: -2),
-                position + Delta(x: -1, y: -2),
-                position + Delta(x: 2, y: -1),
-                position + Delta(x: -2, y: -1),
-            ]
-        }
     }
 }
