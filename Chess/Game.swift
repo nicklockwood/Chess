@@ -102,7 +102,10 @@ extension Game {
             return (delta.x == 0 || delta.y == 0 || abs(delta.x) == abs(delta.y)) &&
                 !board.piecesExist(between: from, and: to)
         case .king:
-            return (abs(delta.x) <= 1 && abs(delta.y) <= 1)
+            if abs(delta.x) <= 1, abs(delta.y) <= 1 {
+                return true
+            }
+            return castlingPermitted(from: from, to: to)
         case .knight:
             return [
                 Delta(x: 1, y: 2),
@@ -121,6 +124,18 @@ extension Game {
         return board.allPositions.contains(where: { canMove(from: $0, to: position) })
     }
 
+    func positionIsThreatened(_ position: Position, by color: Color) -> Bool {
+        return board.allPieces.contains(where: { from, piece in
+            guard piece.color == color else {
+                return false
+            }
+            if piece.type == .pawn {
+                return pawnCanTake(from: from, with: position - from)
+            }
+            return canMove(from: from, to: position)
+        })
+    }
+
     func kingIsInCheck(for color: Color) -> Bool {
         if let position = board.firstPosition(where: {
             $0.type == .king && $0.color == color
@@ -132,9 +147,16 @@ extension Game {
 
     mutating func move(from: Position, to: Position) {
         assert(canMove(from: from, to: to))
-        if let piece = board.piece(at: from), piece.type == .pawn,
-            enPassantTakePermitted(from: from, to: to) {
+        switch board.piece(at: from)?.type {
+        case .pawn where enPassantTakePermitted(from: from, to: to):
             board.removePiece(at: Position(x: to.x, y: to.y - (to.y - from.y)))
+        case .king where abs(to.x - from.x) > 1:
+            let kingSide = (to.x == 6)
+            let rookPosition = Position(x: kingSide ? 7 : 0, y: to.y)
+            let rookDestination = Position(x: kingSide ? 5 : 3, y: to.y)
+            board.movePiece(from: rookPosition, to: rookDestination)
+        default:
+            break
         }
         board.movePiece(from: from, to: to)
         history.append(Move(from: from, to: to))
@@ -280,6 +302,36 @@ private extension Game {
         default:
             return lastMove.from.y == to.y - 1 && lastMove.to.y == to.y + 1
         }
+    }
+
+    func pieceHasMoved(at position: Position) -> Bool {
+        return history.contains(where: { $0.from == position })
+    }
+
+    func castlingPermitted(from: Position, to: Position) -> Bool {
+        guard let this = board.piece(at: from) else {
+            return false
+        }
+        assert(this.type == .king)
+        let kingsRow = this.color == .black ? 0 : 7
+        guard from.y == kingsRow, to.y == kingsRow,
+            from.x == 4, [2, 6].contains(to.x) else {
+            return false
+        }
+        let kingPosition = Position(x: 4, y: kingsRow)
+        if pieceHasMoved(at: kingPosition) {
+            return false
+        }
+        let isKingSide = (to.x == 6)
+        let rookPosition = Position(x: isKingSide ? 7 : 0, y: kingsRow)
+        if pieceHasMoved(at: rookPosition) {
+            return false
+        }
+        return !(isKingSide ? 5 ... 6 : 1 ... 3).contains(where: {
+            board.piece(at: Position(x: $0, y: kingsRow)) != nil
+        }) && !(isKingSide ? 4 ... 6 : 2 ... 4).contains(where: {
+            positionIsThreatened(Position(x: $0, y: kingsRow), by: this.color.other)
+        })
     }
 }
 
