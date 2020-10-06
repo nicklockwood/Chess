@@ -229,12 +229,22 @@ extension Game {
                      .staleMate, nil:
                     break
                 case .idle where newScore == bestScore:
+                    guard let bestMove = bestMove, let piece = board.piece(at: move.from) else {
+                        break
+                    }
+                    // Encourage castling
+                    if piece.type == .king, abs(move.to.x - move.from.x) > 1 {
+                        newScore += 0.5
+                        break
+                    }
+                    // Discourage moving king or rook
+                    if [.king, .rook].contains(piece.type) {
+                        continue
+                    }
                     // All other things being equal, try to get pawn to other side
-                    if let bestMove = bestMove,
-                        board.piece(at: move.from)?.type == .pawn,
-                        board.piece(at: bestMove.from)?.type != .pawn ||
-                            (color == .black && move.to.y > bestMove.to.y) ||
-                            (color == .white && move.to.y < bestMove.to.y) {
+                    if piece.type == .pawn, board.piece(at: bestMove.from)?.type != .pawn ||
+                        (color == .black && move.to.y > bestMove.to.y) ||
+                        (color == .white && move.to.y < bestMove.to.y) {
                         break
                     }
                     continue
