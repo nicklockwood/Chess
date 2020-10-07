@@ -228,7 +228,7 @@ extension Game {
                      .check where newScore > bestScore,
                      .staleMate, nil:
                     break
-                case .idle where newScore == bestScore:
+                case .idle where newScore == bestScore && !newBoard.pieceIsThreatened(at: move.to):
                     guard let bestMove = bestMove, let piece = board.piece(at: move.from) else {
                         break
                     }
