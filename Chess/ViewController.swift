@@ -108,10 +108,9 @@ extension ViewController: BoardViewDelegate {
         let board1 = game.board
         let wasInCheck = game.kingIsInCheck(for: oldGame.turn)
         let wasPromoted = !wasInCheck && game.canPromotePiece(at: position)
+        let wasHuman = playerIsHuman(oldGame.turn)
         if wasInCheck {
             game = oldGame
-        } else if wasPromoted {
-            game.promotePiece(at: position, to: .queen)
         }
         let board2 = game.board
         UIView.animate(withDuration: 0.4, animations: {
@@ -119,7 +118,7 @@ extension ViewController: BoardViewDelegate {
             boardView.board = board1
             boardView.moves = []
         }, completion: { [weak self] _ in
-            guard board2 == self?.game.board else { return }
+            guard let self = self, board2 == self.game.board else { return }
             if wasInCheck {
                 UIView.animate(withDuration: 0.2, animations: {
                     boardView.board = board2
@@ -127,15 +126,36 @@ extension ViewController: BoardViewDelegate {
                 return
             }
             if wasPromoted {
-                UIView.animate(withDuration: 0.4, animations: {
-                    boardView.board = board2
-                }, completion: { [weak self] _ in
-                    guard board2 == self?.game.board else { return }
-                    self?.update()
-                })
-                return
+                if !wasHuman {
+                    self.game.promotePiece(at: position, to: .queen)
+                    let board2 = self.game.board
+                    UIView.animate(withDuration: 0.4, animations: {
+                        boardView.board = board2
+                    }, completion: { [weak self] _ in
+                        guard board2 == self?.game.board else { return }
+                        self?.update()
+                    })
+                    return
+                }
+                let alert = UIAlertController(
+                    title: "Promote Pawn",
+                    message: nil,
+                    preferredStyle: .alert
+                )
+                for piece in [PieceType.queen, .rook, .bishop, .knight] {
+                    alert.addAction(UIAlertAction(
+                        title: piece.rawValue.capitalized,
+                        style: .default
+                    ) { [weak self] _ in
+                        guard let self = self else { return }
+                        self.game.promotePiece(at: position, to: piece)
+                        boardView.board = self.game.board
+                        self.update()
+                    })
+                }
+                self.present(alert, animated: true)
             }
-            self?.update()
+            self.update()
         })
     }
 }
