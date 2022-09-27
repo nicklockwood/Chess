@@ -36,6 +36,7 @@ class ViewController: UIViewController {
         }, completion: { [weak self] _ in
             self?.update()
         })
+        setSelection(nil)
     }
 }
 
