@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.3.0](https://github.com/nicklockwood/Chess/releases/tag/0.3.0) (2022-10-22)
+
+- Player can now select pawn promotion piece upon reaching opponent's side
+- Board no longer resets immediately after game ends
+- Current selection is now cleared when game is reset
+- Fixed bug where AI player would make pointless sacrifice
+- Invalid selection and moves in check are now indicated with a jiggle animation
+- King now displays pulse animation when put in check
+
 ## [0.2.0](https://github.com/nicklockwood/Chess/releases/tag/0.2.0) (2020-10-06)
 
 - Added support for castling and en passant maneuvers
