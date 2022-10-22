@@ -26,11 +26,7 @@ class ViewController: UIViewController {
     }
 
     @IBAction private func togglePlayerType() {
-        if !playerIsHuman(game.turn),
-           let move = game.nextMove(for: game.turn)
-        {
-            makeMove(move)
-        }
+        makeComputerMove()
     }
 
     @IBAction private func resetGame() {
@@ -87,12 +83,12 @@ extension ViewController: BoardViewDelegate {
             )
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true)
-        case .idle, .check:
-            if !playerIsHuman(game.turn),
-               let move = game.nextMove(for: game.turn)
-            {
-                makeMove(move)
+        case .check:
+            boardView?.pulsePiece(at: game.kingPosition(for: game.turn)) {
+                self.makeComputerMove()
             }
+        case .idle:
+            makeComputerMove()
         }
     }
 
@@ -102,6 +98,14 @@ extension ViewController: BoardViewDelegate {
             self.boardView?.selection = position
             self.boardView?.moves = moves
         })
+    }
+
+    private func makeComputerMove() {
+        if !playerIsHuman(game.turn),
+           let move = game.nextMove(for: game.turn)
+        {
+            makeMove(move)
+        }
     }
 
     private func makeMove(_ move: Move) {

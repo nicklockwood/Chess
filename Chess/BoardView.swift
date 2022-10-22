@@ -43,6 +43,12 @@ class BoardView: UIView {
         }
     }
 
+    func pulsePiece(at position: Position, completion: (() -> Void)?) {
+        if let piece = board.piece(at: position) {
+            pieces[piece.id]?.pulse(completion: completion)
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         sharedSetup()
@@ -164,5 +170,29 @@ class BoardView: UIView {
         }
         updatePieces()
         updateMoveIndicators()
+    }
+}
+
+private extension UIImageView {
+    func pulse(
+        scale: CGFloat = 1.5,
+        duration: TimeInterval = 0.6,
+        completion: (() -> Void)? = nil
+    ) {
+        let pulseView = UIImageView(frame: frame)
+        pulseView.image = image
+        superview?.addSubview(pulseView)
+        UIView.animate(
+            withDuration: 0.6,
+            delay: 0,
+            options: .curveEaseOut,
+            animations: {
+                pulseView.transform = .init(scaleX: 2, y: 2)
+                pulseView.alpha = 0
+            }, completion: { _ in
+                pulseView.removeFromSuperview()
+                completion?()
+            }
+        )
     }
 }
