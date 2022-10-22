@@ -112,7 +112,8 @@ extension ViewController: BoardViewDelegate {
         let oldGame = game
         game.move(from: move.from, to: position)
         let board1 = game.board
-        let wasInCheck = game.kingIsInCheck(for: oldGame.turn)
+        let kingPosition = game.kingPosition(for: oldGame.turn)
+        let wasInCheck = game.pieceIsThreatened(at: kingPosition)
         let wasPromoted = !wasInCheck && game.canPromotePiece(at: position)
         let wasHuman = playerIsHuman(oldGame.turn)
         if wasInCheck {
@@ -129,6 +130,7 @@ extension ViewController: BoardViewDelegate {
                 UIView.animate(withDuration: 0.2, animations: {
                     boardView.board = board2
                 })
+                boardView.jigglePiece(at: kingPosition)
                 return
             }
             if wasPromoted {

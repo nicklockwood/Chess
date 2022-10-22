@@ -136,13 +136,14 @@ extension Game {
         })
     }
 
+    func kingPosition(for color: Color) -> Position {
+        board.firstPosition(where: {
+           $0.type == .king && $0.color == color
+        }) ?? .init(x: 0, y: 0)
+    }
+
     func kingIsInCheck(for color: Color) -> Bool {
-        if let position = board.firstPosition(where: {
-            $0.type == .king && $0.color == color
-        }) {
-            return pieceIsThreatened(at: position)
-        }
-        return false
+        pieceIsThreatened(at: kingPosition(for: color))
     }
 
     mutating func move(from: Position, to: Position) {
