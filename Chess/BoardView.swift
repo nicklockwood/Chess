@@ -37,6 +37,12 @@ class BoardView: UIView {
         didSet { updateMoveIndicators() }
     }
 
+    func jigglePiece(at position: Position) {
+        if let piece = board.piece(at: position) {
+            pieces[piece.id]?.jiggle()
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         sharedSetup()

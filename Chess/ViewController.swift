@@ -49,6 +49,8 @@ extension ViewController: BoardViewDelegate {
         guard let selection = boardView.selection else {
             if game.canSelectPiece(at: position) {
                 setSelection(position)
+            } else {
+                boardView.jigglePiece(at: position)
             }
             return
         }
