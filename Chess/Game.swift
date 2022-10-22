@@ -182,7 +182,7 @@ extension Game {
 
     // MARK: AI
 
-    func nextMove(for color: Color) -> Move {
+    func nextMove(for color: Color) -> Move? {
         var bestMove: Move?
         var bestState: GameState?
         var bestScore = 0.0
@@ -260,7 +260,7 @@ extension Game {
             bestState = newBoard.state
             bestScore = newScore
         }
-        return bestMove!
+        return bestMove
     }
 }
 

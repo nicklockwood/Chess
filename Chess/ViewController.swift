@@ -26,7 +26,11 @@ class ViewController: UIViewController {
     }
 
     @IBAction private func togglePlayerType() {
-        update()
+        if !playerIsHuman(game.turn),
+           let move = game.nextMove(for: game.turn)
+        {
+            makeMove(move)
+        }
     }
 
     @IBAction private func resetGame() {
@@ -79,13 +83,13 @@ extension ViewController: BoardViewDelegate {
                     "Checkmate: \(game.turn.other) wins",
                 preferredStyle: .alert
             )
-            alert.addAction(UIAlertAction(title: "Play again", style: .default) { [weak self] _ in
-                self?.resetGame()
-            })
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
             self.present(alert, animated: true)
         case .idle, .check:
-            if !playerIsHuman(game.turn) {
-                makeMove(game.nextMove(for: game.turn))
+            if !playerIsHuman(game.turn),
+               let move = game.nextMove(for: game.turn)
+            {
+                makeMove(move)
             }
         }
     }
