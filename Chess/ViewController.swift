@@ -166,6 +166,7 @@ extension ViewController: BoardViewDelegate {
                     })
                 }
                 self.present(alert, animated: true)
+                return
             }
             self.update()
         })
