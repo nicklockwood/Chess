@@ -19,7 +19,10 @@ To-Do List
 -----------
 
 * Persist the game state when the app is closed
-* Let user choose piece when pawn reaches other side instead of always promoting to a queen
 * Add speed and intelligence settings for AI
 * Detect draw conditions such as dead positions, insufficient material, repetition, etc
 * Standard openings
+* Add numbers and letters for the board
+* Revert move option
+* Set time for each player
+* Add different color option for the board such as green & yellow
