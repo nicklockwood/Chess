@@ -1,15 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "square gray light _2x_ns.png",
+      "filename" : "square_dark_gray.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "square_dark_gray@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "square_dark_gray@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }
