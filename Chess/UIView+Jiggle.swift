@@ -17,12 +17,11 @@ extension UIView {
         animation.duration = duration
         animation.values = [
             -amount, amount,
-             -amount, amount,
-             -amount / 2, amount / 2,
-             -amount / 4, amount / 4,
-             0
+            -amount, amount,
+            -amount / 2, amount / 2,
+            -amount / 4, amount / 4,
+            0,
         ]
         layer.add(animation, forKey: "shake")
     }
 }
-

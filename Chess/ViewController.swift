@@ -25,7 +25,7 @@ class ViewController: UIViewController {
     }
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        return .portrait
+        .portrait
     }
 
     @IBAction private func togglePlayerType() {
@@ -68,7 +68,7 @@ extension ViewController: BoardViewDelegate {
         switch color {
         case .white:
             return whiteToggle?.selectedSegmentIndex == 0
-        case.black:
+        case .black:
             return blackToggle?.selectedSegmentIndex == 0
         }
     }
@@ -85,7 +85,7 @@ extension ViewController: BoardViewDelegate {
                 preferredStyle: .alert
             )
             alert.addAction(UIAlertAction(title: "OK", style: .default))
-            self.present(alert, animated: true)
+            present(alert, animated: true)
         case .check:
             boardView?.pulsePiece(at: game.kingPosition(for: game.turn)) {
                 self.makeComputerMove()
