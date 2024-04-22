@@ -35,7 +35,7 @@ enum Color: String {
     case black
 
     var other: Color {
-        return self == .black ? .white : .black
+        self == .black ? .white : .black
     }
 }
 
@@ -75,11 +75,11 @@ struct Position: Hashable {
     var x, y: Int
 
     static func - (lhs: Position, rhs: Position) -> Delta {
-        return Delta(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
+        Delta(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
 
     static func + (lhs: Position, rhs: Delta) -> Position {
-        return Position(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+        Position(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
     }
 
     static func += (lhs: inout Position, rhs: Delta) {
@@ -97,10 +97,10 @@ extension Board {
         (0 ..< 8).map { Position(x: $0, y: y) }
     }
 
-    var allPositions: [Position] { return Self.allPositions }
+    var allPositions: [Position] { Self.allPositions }
 
     var allPieces: [(position: Position, piece: Piece)] {
-        return allPositions.compactMap { position in
+        allPositions.compactMap { position in
             pieces[position.y][position.x].map { (position, $0) }
         }
     }
@@ -126,7 +126,7 @@ extension Board {
     }
 
     func firstPosition(where condition: (Piece) -> Bool) -> Position? {
-        return allPieces.first(where: { condition($1) })?.position
+        allPieces.first(where: { condition($1) })?.position
     }
 
     mutating func movePiece(from: Position, to: Position) {

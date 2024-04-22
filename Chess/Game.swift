@@ -24,7 +24,7 @@ struct Game {
 
 extension Game {
     var turn: Color {
-        return history.last.flatMap {
+        history.last.flatMap {
             board.piece(at: $0.to)?.color.other
         } ?? .white
     }
@@ -50,11 +50,11 @@ extension Game {
     // MARK: Game logic
 
     func canSelectPiece(at position: Position) -> Bool {
-        return board.piece(at: position)?.color == turn
+        board.piece(at: position)?.color == turn
     }
 
     func canMove(from: Position, by: Delta) -> Bool {
-        return canMove(from: from, to: from + by)
+        canMove(from: from, to: from + by)
     }
 
     func canMove(from: Position, to: Position) -> Bool {
@@ -121,11 +121,11 @@ extension Game {
     }
 
     func pieceIsThreatened(at position: Position) -> Bool {
-        return board.allPositions.contains(where: { canMove(from: $0, to: position) })
+        board.allPositions.contains(where: { canMove(from: $0, to: position) })
     }
 
     func positionIsThreatened(_ position: Position, by color: Color) -> Bool {
-        return board.allPieces.contains(where: { from, piece in
+        board.allPieces.contains(where: { from, piece in
             guard piece.color == color else {
                 return false
             }
@@ -138,7 +138,7 @@ extension Game {
 
     func kingPosition(for color: Color) -> Position {
         board.firstPosition(where: {
-           $0.type == .king && $0.color == color
+            $0.type == .king && $0.color == color
         }) ?? .init(x: 0, y: 0)
     }
 
@@ -165,8 +165,9 @@ extension Game {
 
     func canPromotePiece(at position: Position) -> Bool {
         if let pawn = board.piece(at: position), pawn.type == .pawn,
-            (pawn.color == .white && position.y == 0) ||
-            (pawn.color == .black && position.y == 7) {
+           (pawn.color == .white && position.y == 0) ||
+           (pawn.color == .black && position.y == 7)
+        {
             return true
         }
         return false
@@ -178,7 +179,7 @@ extension Game {
     }
 
     func movesForPiece(at position: Position) -> [Position] {
-        return board.allPositions.filter { canMove(from: position, to: $0) }
+        board.allPositions.filter { canMove(from: position, to: $0) }
     }
 
     // MARK: AI
@@ -207,7 +208,8 @@ extension Game {
                 }
             case .check:
                 if newBoard.pieceIsThreatened(at: move.to),
-                    let piece = newBoard.board.piece(at: move.to) {
+                   let piece = newBoard.board.piece(at: move.to)
+                {
                     newScore -= Double(piece.type.value) * 0.9
                 }
                 switch bestState {
@@ -245,7 +247,8 @@ extension Game {
                     // All other things being equal, try to get pawn to other side
                     if piece.type == .pawn, board.piece(at: bestMove.from)?.type != .pawn ||
                         (color == .black && move.to.y > bestMove.to.y) ||
-                        (color == .white && move.to.y < bestMove.to.y) {
+                        (color == .white && move.to.y < bestMove.to.y)
+                    {
                         break
                     }
                     continue
@@ -254,7 +257,8 @@ extension Game {
                 }
             }
             if bestMove != nil, history.count > 1,
-                history.dropLast().last == Move(from: move.to, to: move.from) {
+               history.dropLast().last == Move(from: move.to, to: move.from)
+            {
                 continue
             }
             bestMove = move
@@ -267,21 +271,22 @@ extension Game {
 
 private extension Game {
     func allMoves(for color: Color) ->
-        LazySequence<FlattenSequence<LazyMapSequence<[Position], LazyFilterSequence<[Move]>>>> {
-        return board.allPieces
+        LazySequence<FlattenSequence<LazyMapSequence<[Position], LazyFilterSequence<[Move]>>>>
+    {
+        board.allPieces
             .compactMap { $1.color == color ? $0 : nil }
             .lazy.flatMap { self.allMoves(for: $0) }
     }
 
     func allMoves(for position: Position) -> LazyFilterSequence<[Move]> {
-        return board.allPositions
+        board.allPositions
             .map { Move(from: position, to: $0) }
             .lazy.filter { self.canMove(from: $0.from, to: $0.to) }
     }
 
     func allThreats(for color: Color) -> LazyFilterSequence<[(position: Position, piece: Piece)]> {
-        return board.allPieces.lazy.filter { position, piece in
-            return piece.color == color && self.pieceIsThreatened(at: position)
+        board.allPieces.lazy.filter { position, piece in
+            piece.color == color && self.pieceIsThreatened(at: position)
         }
     }
 
@@ -300,10 +305,10 @@ private extension Game {
 
     func enPassantTakePermitted(from: Position, to: Position) -> Bool {
         guard let this = board.piece(at: from),
-            pawnCanTake(from: from, with: to - from),
-            let lastMove = history.last, lastMove.to.x == to.x,
-            let piece = board.piece(at: lastMove.to),
-            piece.type == .pawn, piece.color != this.color
+              pawnCanTake(from: from, with: to - from),
+              let lastMove = history.last, lastMove.to.x == to.x,
+              let piece = board.piece(at: lastMove.to),
+              piece.type == .pawn, piece.color != this.color
         else {
             return false
         }
@@ -316,7 +321,7 @@ private extension Game {
     }
 
     func pieceHasMoved(at position: Position) -> Bool {
-        return history.contains(where: { $0.from == position })
+        history.contains(where: { $0.from == position })
     }
 
     func castlingPermitted(from: Position, to: Position) -> Bool {
@@ -326,7 +331,8 @@ private extension Game {
         assert(this.type == .king)
         let kingsRow = this.color == .black ? 0 : 7
         guard from.y == kingsRow, to.y == kingsRow,
-            from.x == 4, [2, 6].contains(to.x) else {
+              from.x == 4, [2, 6].contains(to.x)
+        else {
             return false
         }
         let kingPosition = Position(x: 4, y: kingsRow)

@@ -10,7 +10,7 @@ import UIKit
 
 private extension Piece {
     var imageName: String {
-        return "\(type.rawValue)_\(color.rawValue)"
+        "\(type.rawValue)_\(color.rawValue)"
     }
 }
 
@@ -63,7 +63,7 @@ class BoardView: UIView {
         for i in 0 ..< 8 {
             for j in 0 ..< 8 {
                 let white = i % 2 == j % 2
-                let image = UIImage(named: white ? "square_white": "square_black")
+                let image = UIImage(named: white ? "square_white" : "square_black")
                 let view = UIImageView(image: image)
                 squares.append(view)
                 addSubview(view)

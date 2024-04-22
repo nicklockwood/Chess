@@ -1,0 +1,18 @@
+# file options
+
+--exclude Build
+
+# format options
+
+--swiftversion 5.2
+--hexgrouping ignore
+--decimalgrouping ignore
+--ifdef no-indent
+--self remove
+--shortoptionals except-properties
+--maxwidth 120
+
+# rules
+
+--lintonly unusedArguments
+--enable isEmpty
