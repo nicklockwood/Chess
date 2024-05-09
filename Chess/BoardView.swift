@@ -10,7 +10,7 @@ import UIKit
 
 private extension Piece {
     var imageName: String {
-        return "\(type.rawValue)_\(color.rawValue)"
+        "\(type.rawValue)_\(color.rawValue)"
     }
 }
 
