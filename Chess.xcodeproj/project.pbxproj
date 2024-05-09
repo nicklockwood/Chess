@@ -17,6 +17,8 @@
 		01642A99251A89B400039186 /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01642A98251A89B400039186 /* BoardView.swift */; };
 		01642A9B251A9CA600039186 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01642A9A251A9CA600039186 /* Board.swift */; };
 		01C5BA58251CC44D00A53B56 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C5BA57251CC44D00A53B56 /* Game.swift */; };
+		0E6FCBCB2BED015E00193845 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6FCBCA2BED015E00193845 /* SettingsViewController.swift */; };
+		0E6FCBCD2BED202900193845 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E6FCBCC2BED202900193845 /* Storage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +34,8 @@
 		01642A98251A89B400039186 /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		01642A9A251A9CA600039186 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 		01C5BA57251CC44D00A53B56 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		0E6FCBCA2BED015E00193845 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		0E6FCBCC2BED202900193845 /* Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +75,8 @@
 				01642A98251A89B400039186 /* BoardView.swift */,
 				01642A88251A882400039186 /* ViewController.swift */,
 				013499942904183F00CED6BE /* UIView+Jiggle.swift */,
+				0E6FCBCA2BED015E00193845 /* SettingsViewController.swift */,
+				0E6FCBCC2BED202900193845 /* Storage.swift */,
 				01642A8A251A882400039186 /* Main.storyboard */,
 				01642A8D251A882800039186 /* Assets.xcassets */,
 				01642A8F251A882800039186 /* LaunchScreen.storyboard */,
@@ -178,8 +184,10 @@
 				01C5BA58251CC44D00A53B56 /* Game.swift in Sources */,
 				01642A99251A89B400039186 /* BoardView.swift in Sources */,
 				01642A9B251A9CA600039186 /* Board.swift in Sources */,
+				0E6FCBCD2BED202900193845 /* Storage.swift in Sources */,
 				01642A85251A882400039186 /* AppDelegate.swift in Sources */,
 				01642A87251A882400039186 /* SceneDelegate.swift in Sources */,
+				0E6FCBCB2BED015E00193845 /* SettingsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,6 +336,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 8VQKF583ED;
 				INFOPLIST_FILE = Chess/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -346,6 +355,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 8VQKF583ED;
 				INFOPLIST_FILE = Chess/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

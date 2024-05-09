@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22113.3" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22089.1"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -35,7 +35,7 @@
                                 </connections>
                             </segmentedControl>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="White" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BMt-yP-W2a">
-                                <rect key="frame" x="178" y="144" width="45" height="21"/>
+                                <rect key="frame" x="178.5" y="144.5" width="44.5" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -51,25 +51,33 @@
                                 </connections>
                             </segmentedControl>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Black" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hkk-4j-vt4">
-                                <rect key="frame" x="181" y="195" width="42" height="21"/>
+                                <rect key="frame" x="181.5" y="195.5" width="41.5" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Eh-VO-35h">
-                                <rect key="frame" x="141" y="705" width="132" height="38"/>
-                                <inset key="contentEdgeInsets" minX="20" minY="10" maxX="20" maxY="10"/>
-                                <state key="normal" title="Restart game"/>
-                                <connections>
-                                    <action selector="resetGame" destination="BYZ-38-t0r" eventType="touchUpInside" id="D1t-IJ-d9g"/>
-                                </connections>
-                            </button>
-                            <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="SeC-6h-Qir">
-                                <rect key="frame" x="8" y="743" width="398" height="80"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="80" id="Px5-Qo-WvQ"/>
-                                </constraints>
-                            </pickerView>
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="khe-up-ENp">
+                                <rect key="frame" x="75" y="705" width="264" height="38"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Eh-VO-35h">
+                                        <rect key="frame" x="0.0" y="0.0" width="132" height="38"/>
+                                        <inset key="contentEdgeInsets" minX="20" minY="10" maxX="20" maxY="10"/>
+                                        <state key="normal" title="Restart game"/>
+                                        <connections>
+                                            <action selector="resetGame" destination="BYZ-38-t0r" eventType="touchUpInside" id="D1t-IJ-d9g"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PR8-7h-n5j">
+                                        <rect key="frame" x="132" y="0.0" width="132" height="38"/>
+                                        <inset key="contentEdgeInsets" minX="20" minY="10" maxX="20" maxY="10"/>
+                                        <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                                        <state key="normal" title="Settings"/>
+                                        <connections>
+                                            <action selector="settings" destination="BYZ-38-t0r" eventType="touchUpInside" id="RWA-Dq-Pxa"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -78,16 +86,13 @@
                             <constraint firstItem="i6L-Bp-k19" firstAttribute="top" secondItem="wW6-Bz-2dd" secondAttribute="bottom" constant="20" id="0lc-vc-hU1"/>
                             <constraint firstItem="wW6-Bz-2dd" firstAttribute="top" secondItem="XI6-5z-ZD0" secondAttribute="bottom" constant="20" id="4r8-PR-mzl"/>
                             <constraint firstItem="i6L-Bp-k19" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="4uP-K2-bNo"/>
-                            <constraint firstItem="0Eh-VO-35h" firstAttribute="top" secondItem="i6L-Bp-k19" secondAttribute="bottom" constant="50" id="5LE-jt-33p"/>
-                            <constraint firstItem="SeC-6h-Qir" firstAttribute="top" secondItem="0Eh-VO-35h" secondAttribute="bottom" id="67w-kr-jOF"/>
-                            <constraint firstItem="SeC-6h-Qir" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-8" id="6ND-sR-KKo"/>
                             <constraint firstItem="XI6-5z-ZD0" firstAttribute="leading" secondItem="BMt-yP-W2a" secondAttribute="trailing" constant="10" id="Cnl-fw-vvX"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="wW6-Bz-2dd" secondAttribute="trailing" constant="20" id="DoV-KX-7x0"/>
                             <constraint firstItem="BMt-yP-W2a" firstAttribute="centerY" secondItem="XI6-5z-ZD0" secondAttribute="centerY" id="H4b-tt-Fp6"/>
-                            <constraint firstItem="0Eh-VO-35h" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="I2w-Km-KZV"/>
                             <constraint firstItem="i6L-Bp-k19" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="R8A-d7-K1j"/>
-                            <constraint firstItem="SeC-6h-Qir" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="8" id="cP5-zZ-eYD"/>
+                            <constraint firstItem="khe-up-ENp" firstAttribute="top" secondItem="i6L-Bp-k19" secondAttribute="bottom" constant="50" id="dCa-WX-WrC"/>
                             <constraint firstItem="i6L-Bp-k19" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="lDf-dw-y7R"/>
+                            <constraint firstItem="khe-up-ENp" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="o3T-VW-Jgv"/>
                             <constraint firstItem="Hkk-4j-vt4" firstAttribute="centerY" secondItem="wW6-Bz-2dd" secondAttribute="centerY" id="pNF-sK-ted"/>
                             <constraint firstItem="i6L-Bp-k19" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="qZ6-M8-Iix"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="XI6-5z-ZD0" secondAttribute="trailing" constant="20" id="wLI-3U-Dfn"/>
@@ -95,7 +100,6 @@
                     </view>
                     <connections>
                         <outlet property="blackToggle" destination="wW6-Bz-2dd" id="fCI-NQ-OR3"/>
-                        <outlet property="boardThemePicker" destination="SeC-6h-Qir" id="vbC-KW-A0k"/>
                         <outlet property="boardView" destination="i6L-Bp-k19" id="y1g-C4-8Kp"/>
                         <outlet property="whiteToggle" destination="XI6-5z-ZD0" id="2ZM-PZ-0YL"/>
                     </connections>

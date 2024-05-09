@@ -14,13 +14,10 @@ class ViewController: UIViewController {
     @IBOutlet var boardView: BoardView?
     @IBOutlet var whiteToggle: UISegmentedControl?
     @IBOutlet var blackToggle: UISegmentedControl?
-    @IBOutlet var boardThemePicker: UIPickerView?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         boardView?.delegate = self
-        boardThemePicker?.dataSource = self
-        boardThemePicker?.delegate = self
         update()
     }
 
@@ -40,6 +37,12 @@ class ViewController: UIViewController {
             self?.update()
         })
         setSelection(nil)
+    }
+    
+    @IBAction private func settings() {
+        let vc = SettingsViewController(selectedTheme: boardView?.theme ?? .classic)
+        vc.onThemeSelect = { self.boardView?.theme = $0 }
+        self.present(vc, animated: true)
     }
 }
 
@@ -190,6 +193,6 @@ extension ViewController: UIPickerViewDataSource, UIPickerViewDelegate {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        boardView?.theme =  Theme.allCases[row]
+        boardView?.theme = Theme.allCases[row]
     }
 }

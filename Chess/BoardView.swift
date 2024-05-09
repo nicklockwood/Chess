@@ -25,7 +25,7 @@ class BoardView: UIView {
     private(set) var pieces: [String: UIImageView] = [:]
     private(set) var moveIndicators: [UIView] = []
     
-    var theme: Theme = .classic {
+    var theme: Theme = Theme(rawValue: Storage.shared.boardTheme ?? "") ?? .classic {
         didSet { updateTheme() }
     }
 
