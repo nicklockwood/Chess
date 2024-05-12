@@ -156,7 +156,7 @@ class BoardView: UIView {
 
     private var squareSize: CGSize {
         let bounds = self.bounds.size
-        return CGSize(width: ceil(bounds.width / 8), height: ceil(frame.height / 8))
+        return CGSize(width: bounds.width / 8, height: bounds.height / 8)
     }
 
     private func frame(x: Int, y: Int, size: CGSize) -> CGRect {

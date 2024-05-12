@@ -18,6 +18,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         boardView?.delegate = self
+        boardThemePicker?.dataSource = self
+        boardThemePicker?.delegate = self
         update()
     }
 
