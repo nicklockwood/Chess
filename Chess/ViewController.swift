@@ -14,7 +14,6 @@ class ViewController: UIViewController {
     @IBOutlet var boardView: BoardView?
     @IBOutlet var whiteToggle: UISegmentedControl?
     @IBOutlet var blackToggle: UISegmentedControl?
-    @IBOutlet var boardThemePicker: UIPickerView?
 
     private lazy var saveURL: URL = {
         var directory = FileManager.default
@@ -29,8 +28,6 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         boardView?.delegate = self
-        boardThemePicker?.dataSource = self
-        boardThemePicker?.delegate = self
         try? load(from: saveURL)
         whiteToggle?.selectedSegmentIndex = game.whiteIsHuman ? 0 : 1
         blackToggle?.selectedSegmentIndex = game.blackIsHuman ? 0 : 1
@@ -72,6 +69,12 @@ class ViewController: UIViewController {
             self?.update()
         })
         setSelection(nil)
+    }
+
+    @IBAction private func settings() {
+        let vc = SettingsViewController(selectedTheme: boardView?.theme ?? .classic)
+        vc.onThemeSelect = { self.boardView?.theme = $0 }
+        present(vc, animated: true)
     }
 }
 
