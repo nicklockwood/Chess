@@ -21,9 +21,13 @@ protocol BoardViewDelegate: AnyObject {
 class BoardView: UIView {
     weak var delegate: BoardViewDelegate?
 
-    private(set) var squares: [UIImageView] = []
+    private(set) var squares: [UIView] = []
     private(set) var pieces: [String: UIImageView] = [:]
     private(set) var moveIndicators: [UIView] = []
+
+    var theme: Theme = .classic {
+        didSet { updateTheme() }
+    }
 
     var board = Board() {
         didSet { updatePieces() }
@@ -63,8 +67,8 @@ class BoardView: UIView {
         for i in 0 ..< 8 {
             for j in 0 ..< 8 {
                 let white = i % 2 == j % 2
-                let image = UIImage(named: white ? "square_white" : "square_black")
-                let view = UIImageView(image: image)
+                let view = UIView()
+                view.backgroundColor = UIColor(named: white ? theme.imageName.white : theme.imageName.black)
                 squares.append(view)
                 addSubview(view)
             }
@@ -170,6 +174,20 @@ class BoardView: UIView {
         }
         updatePieces()
         updateMoveIndicators()
+    }
+
+    private func updateTheme() {
+        squares.forEach { $0.removeFromSuperview() }
+        squares.removeAll()
+        for i in 0 ..< 8 {
+            for j in 0 ..< 8 {
+                let white = i % 2 == j % 2
+                let view = UIView()
+                view.backgroundColor = UIColor(named: white ? theme.imageName.white : theme.imageName.black)
+                squares.append(view)
+                insertSubview(view, at: 0)
+            }
+        }
     }
 }
 
