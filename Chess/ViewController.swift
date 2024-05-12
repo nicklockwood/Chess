@@ -14,6 +14,7 @@ class ViewController: UIViewController {
     @IBOutlet var boardView: BoardView?
     @IBOutlet var whiteToggle: UISegmentedControl?
     @IBOutlet var blackToggle: UISegmentedControl?
+    @IBOutlet var boardThemePicker: UIPickerView?
 
     private lazy var saveURL: URL = {
         var directory = FileManager.default
@@ -28,6 +29,8 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         boardView?.delegate = self
+        boardThemePicker?.dataSource = self
+        boardThemePicker?.delegate = self
         try? load(from: saveURL)
         whiteToggle?.selectedSegmentIndex = game.whiteIsHuman ? 0 : 1
         blackToggle?.selectedSegmentIndex = game.blackIsHuman ? 0 : 1
@@ -214,5 +217,23 @@ extension ViewController: BoardViewDelegate {
             }
             self.update()
         })
+    }
+}
+
+extension ViewController: UIPickerViewDataSource, UIPickerViewDelegate {
+    func numberOfComponents(in _: UIPickerView) -> Int {
+        1
+    }
+
+    func pickerView(_: UIPickerView, numberOfRowsInComponent _: Int) -> Int {
+        Theme.allCases.count
+    }
+
+    func pickerView(_: UIPickerView, titleForRow row: Int, forComponent _: Int) -> String? {
+        Theme.allCases[row].rawValue
+    }
+
+    func pickerView(_: UIPickerView, didSelectRow row: Int, inComponent _: Int) {
+        boardView?.theme = Theme.allCases[row]
     }
 }
