@@ -148,3 +148,23 @@ extension Board {
         pieces[position.y][position.x] = piece
     }
 }
+
+enum Theme: String, CaseIterable {
+    case classic = "Classic"
+    case wood = "Wood"
+    case light = "Light"
+    case glass = "Glass"
+    
+    var imageName: (white: String, black: String) {
+        switch self {
+        case .classic:
+            return ("square_light_yellow", "square_green")
+        case .wood:
+            return ("square_yellow", "square_brown")
+        case .light:
+            return ("square_light_gray", "square_gray")
+        case .glass:
+            return ("square_dark_gray", "square_dark")
+        }
+    }
+}
