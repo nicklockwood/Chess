@@ -175,7 +175,7 @@ class BoardView: UIView {
 
 private extension UIImageView {
     func pulse(
-        scale: CGFloat = 1.5,
+        scale: CGFloat = 2,
         duration: TimeInterval = 0.6,
         completion: (() -> Void)? = nil
     ) {
@@ -183,11 +183,11 @@ private extension UIImageView {
         pulseView.image = image
         superview?.addSubview(pulseView)
         UIView.animate(
-            withDuration: 0.6,
+            withDuration: duration,
             delay: 0,
             options: .curveEaseOut,
             animations: {
-                pulseView.transform = .init(scaleX: 2, y: 2)
+                pulseView.transform = .init(scaleX: scale, y: scale)
                 pulseView.alpha = 0
             }, completion: { _ in
                 pulseView.removeFromSuperview()
