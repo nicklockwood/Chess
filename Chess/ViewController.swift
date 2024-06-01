@@ -110,12 +110,21 @@ extension ViewController: BoardViewDelegate {
     private func update() {
         let gameState = game.state
         switch gameState {
-        case .checkMate, .staleMate:
+        case .checkMate, .staleMate, .insufficientMaterial:
+            let message: String
+            switch gameState {
+            case .staleMate:
+                message = "Stalemate: Nobody wins"
+            case .insufficientMaterial:
+                message = "Insufficient material: Nobody wins"
+            case .checkMate:
+                message = "Checkmate: \(game.turn.other) wins"
+            case .check, .idle:
+                preconditionFailure()
+            }
             let alert = UIAlertController(
                 title: "Game Over",
-                message: gameState == .staleMate ?
-                    "Stalemate: Nobody wins" :
-                    "Checkmate: \(game.turn.other) wins",
+                message: message,
                 preferredStyle: .alert
             )
             alert.addAction(UIAlertAction(title: "OK", style: .default))
