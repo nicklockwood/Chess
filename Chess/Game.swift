@@ -15,6 +15,7 @@ enum GameState {
     case check
     case checkMate
     case staleMate
+    case insufficientMaterial
 }
 
 struct Game {
@@ -30,6 +31,9 @@ extension Game {
     }
 
     var state: GameState {
+        guard isSufficientMaterial(for: .white) || isSufficientMaterial(for: .black) else {
+            return .insufficientMaterial
+        }
         let color = turn
         let canMove = allMoves(for: color).contains(where: { move in
             var newBoard = self
@@ -146,6 +150,22 @@ extension Game {
         pieceIsThreatened(at: kingPosition(for: color))
     }
 
+    func piecesRemaining(for color: Color) -> [PieceType] {
+        board.allPieces.compactMap {
+            $0.piece.color == color ? $0.piece.type : nil
+        }
+    }
+
+    func isSufficientMaterial(for color: Color) -> Bool {
+        switch Set(piecesRemaining(for: color)) {
+        case [.king], [.king, .bishop], [.king, .knight]:
+            return false
+        default:
+            // TODO: consider the two knights vs king case
+            return true
+        }
+    }
+
     mutating func move(from: Position, to: Position) {
         assert(canMove(from: from, to: to))
         switch board.piece(at: from)?.type {
@@ -202,7 +222,7 @@ extension Game {
             switch newBoard.state {
             case .checkMate:
                 break
-            case .staleMate:
+            case .staleMate, .insufficientMaterial:
                 if bestMove != nil {
                     continue
                 }
@@ -215,7 +235,7 @@ extension Game {
                 switch bestState {
                 case .check where newScore >= bestScore,
                      .idle where newScore >= bestScore,
-                     .staleMate, nil:
+                     .staleMate, .insufficientMaterial, nil:
                     break
                 case .check, .checkMate, .idle:
                     continue
@@ -229,7 +249,7 @@ extension Game {
                 switch bestState {
                 case .idle where newScore > bestScore,
                      .check where newScore > bestScore,
-                     .staleMate, nil:
+                     .staleMate, .insufficientMaterial, nil:
                     break
                 case .idle where newScore == bestScore && !newBoard.pieceIsThreatened(at: move.to):
                     guard let bestMove = bestMove, let piece = board.piece(at: move.from) else {
