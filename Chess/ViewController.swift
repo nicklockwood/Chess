@@ -15,10 +15,40 @@ class ViewController: UIViewController {
     @IBOutlet var whiteToggle: UISegmentedControl?
     @IBOutlet var blackToggle: UISegmentedControl?
 
+    private lazy var saveURL: URL = {
+        var directory = FileManager.default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        #if os(macOS)
+        directory = directory.appendingPathComponent(Bundle.main.bundleIdentifier!)
+        #endif
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory.appendingPathComponent("game.json")
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         boardView?.delegate = self
+        try? load(from: saveURL)
+        whiteToggle?.selectedSegmentIndex = game.whiteIsHuman ? 0 : 1
+        blackToggle?.selectedSegmentIndex = game.blackIsHuman ? 0 : 1
+        boardView?.board = game.board
         update()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+    }
+
+    @objc private func didEnterBackground() {
+        try? save(to: saveURL)
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        try? save(to: saveURL)
     }
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
@@ -26,17 +56,33 @@ class ViewController: UIViewController {
     }
 
     @IBAction private func togglePlayerType() {
+        game.whiteIsHuman = whiteToggle?.selectedSegmentIndex == 0
+        game.blackIsHuman = blackToggle?.selectedSegmentIndex == 0
         makeComputerMove()
     }
 
     @IBAction private func resetGame() {
-        game = Game()
+        game.reset()
         UIView.animate(withDuration: 0.4, animations: {
             self.boardView?.board = self.game.board
         }, completion: { [weak self] _ in
             self?.update()
         })
         setSelection(nil)
+    }
+}
+
+extension ViewController {
+    func load(from url: URL) throws {
+        let data = try Data(contentsOf: url)
+        game = try JSONDecoder().decode(Game.self, from: data)
+    }
+
+    func save(to url: URL) throws {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        let data = try encoder.encode(game)
+        try data.write(to: url, options: .atomic)
     }
 }
 
@@ -59,15 +105,6 @@ extension ViewController: BoardViewDelegate {
             return
         }
         makeMove(Move(from: selection, to: position))
-    }
-
-    private func playerIsHuman(_ color: Color) -> Bool {
-        switch color {
-        case .white:
-            return whiteToggle?.selectedSegmentIndex == 0
-        case .black:
-            return blackToggle?.selectedSegmentIndex == 0
-        }
     }
 
     private func update() {
@@ -101,9 +138,7 @@ extension ViewController: BoardViewDelegate {
     }
 
     private func makeComputerMove() {
-        if !playerIsHuman(game.turn),
-           let move = game.nextMove(for: game.turn)
-        {
+        if !game.playerIsHuman, let move = game.nextMove(for: game.turn) {
             makeMove(move)
         }
     }
@@ -119,7 +154,7 @@ extension ViewController: BoardViewDelegate {
         let kingPosition = game.kingPosition(for: oldGame.turn)
         let wasInCheck = game.pieceIsThreatened(at: kingPosition)
         let wasPromoted = !wasInCheck && game.canPromotePiece(at: position)
-        let wasHuman = playerIsHuman(oldGame.turn)
+        let wasHuman = oldGame.playerIsHuman
         if wasInCheck {
             game = oldGame
         }

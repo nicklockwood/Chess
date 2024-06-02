@@ -6,7 +6,7 @@
 //  Copyright © 2020 Nick Lockwood. All rights reserved.
 //
 
-enum PieceType: String {
+enum PieceType: String, Codable {
     case pawn
     case rook
     case knight
@@ -30,7 +30,7 @@ enum PieceType: String {
     }
 }
 
-enum Color: String {
+enum Color: String, Codable {
     case white
     case black
 
@@ -39,7 +39,7 @@ enum Color: String {
     }
 }
 
-struct Piece: Equatable, ExpressibleByStringLiteral {
+struct Piece: Equatable, Codable, ExpressibleByStringLiteral {
     let id: String
     var type: PieceType
     let color: Color
@@ -71,7 +71,7 @@ struct Delta: Hashable {
     var x, y: Int
 }
 
-struct Position: Hashable {
+struct Position: Hashable, Codable {
     var x, y: Int
 
     static func - (lhs: Position, rhs: Position) -> Delta {
@@ -88,7 +88,7 @@ struct Position: Hashable {
     }
 }
 
-struct Board: Equatable {
+struct Board: Equatable, Codable {
     private(set) var pieces: [[Piece?]]
 }
 

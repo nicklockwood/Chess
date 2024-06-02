@@ -6,7 +6,7 @@
 //  Copyright © 2020 Nick Lockwood. All rights reserved.
 //
 
-struct Move: Equatable {
+struct Move: Equatable, Codable {
     var from, to: Position
 }
 
@@ -17,9 +17,11 @@ enum GameState {
     case staleMate
 }
 
-struct Game {
-    private(set) var board: Board
-    private(set) var history: [Move]
+struct Game: Codable {
+    private(set) var board: Board = .init()
+    private(set) var history: [Move] = []
+    var whiteIsHuman: Bool = true
+    var blackIsHuman: Bool = false
 }
 
 extension Game {
@@ -42,9 +44,18 @@ extension Game {
         return canMove ? .idle : .staleMate
     }
 
-    init() {
+    mutating func reset() {
         board = Board()
         history = []
+    }
+
+    // MARK: Settings
+
+    var playerIsHuman: Bool {
+        switch turn {
+        case .white: return whiteIsHuman
+        case .black: return blackIsHuman
+        }
     }
 
     // MARK: Game logic
