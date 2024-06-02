@@ -9,17 +9,13 @@ jobs:
       fail-fast: false
       matrix:
         macos:
-          - 14
+          - 13
         xcode:
           - latest-stable
     runs-on: macos-${{ matrix.macos }}
     steps:
-      - name: Select Xcode version
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: ${{ matrix.xcode }}
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
         run: |
-            xcodebuild -scheme "Chess" -sdk iphonesimulator -destination "name=iPhone 15" clean build
+          xcodebuild -scheme "Chess" -sdk iphonesimulator -destination "name=iPhone 15" clean build
