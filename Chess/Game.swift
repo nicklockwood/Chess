@@ -32,6 +32,10 @@ extension Game {
         } ?? .white
     }
 
+    var canUndo: Bool {
+        !history.isEmpty
+    }
+
     var state: GameState {
         guard isSufficientMaterial(for: .white) || isSufficientMaterial(for: .black) else {
             return .insufficientMaterial
@@ -51,6 +55,14 @@ extension Game {
     mutating func reset() {
         board = Board()
         history = []
+    }
+
+    mutating func undo() {
+        let moves = history.dropLast()
+        reset()
+        for move in moves {
+            makeMove(move)
+        }
     }
 
     // MARK: Settings
@@ -177,8 +189,8 @@ extension Game {
         }
     }
 
-    mutating func move(from: Position, to: Position) {
-        assert(canMove(from: from, to: to))
+    mutating func makeMove(_ move: Move) {
+        let (from, to) = (move.from, move.to)
         switch board.piece(at: from)?.type {
         case .pawn where enPassantTakePermitted(from: from, to: to):
             board.removePiece(at: Position(x: to.x, y: to.y - (to.y - from.y)))
@@ -191,7 +203,7 @@ extension Game {
             break
         }
         board.movePiece(from: from, to: to)
-        history.append(Move(from: from, to: to))
+        history.append(move)
     }
 
     func canPromotePiece(at position: Position) -> Bool {
@@ -221,7 +233,7 @@ extension Game {
         var bestScore = 0.0
         for move in allMoves(for: color).shuffled() {
             var newBoard = self
-            newBoard.move(from: move.from, to: move.to)
+            newBoard.makeMove(move)
             if newBoard.kingIsInCheck(for: color) {
                 continue
             }

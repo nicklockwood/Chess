@@ -12,6 +12,7 @@ class ViewController: UIViewController {
     private var game = Game()
 
     @IBOutlet var boardView: BoardView?
+    @IBOutlet var undoButton: UIButton?
     @IBOutlet var whiteToggle: UISegmentedControl?
     @IBOutlet var blackToggle: UISegmentedControl?
 
@@ -32,6 +33,7 @@ class ViewController: UIViewController {
         whiteToggle?.selectedSegmentIndex = game.whiteIsHuman ? 0 : 1
         blackToggle?.selectedSegmentIndex = game.blackIsHuman ? 0 : 1
         boardView?.board = game.board
+        updateUndoButton()
         update()
 
         NotificationCenter.default.addObserver(
@@ -65,8 +67,25 @@ class ViewController: UIViewController {
         game.reset()
         UIView.animate(withDuration: 0.4, animations: {
             self.boardView?.board = self.game.board
+            self.updateUndoButton()
         }, completion: { [weak self] _ in
             self?.update()
+        })
+        setSelection(nil)
+    }
+
+    @IBAction private func undo() {
+        game.undo()
+        UIView.animate(withDuration: 0.4, animations: {
+            self.boardView?.board = self.game.board
+            self.updateUndoButton()
+        }, completion: { [weak self] _ in
+            guard let self = self else { return }
+            if !game.canUndo || self.game.playerIsHuman {
+                self.update()
+            } else {
+                self.undo()
+            }
         })
         setSelection(nil)
     }
@@ -113,6 +132,15 @@ extension ViewController: BoardViewDelegate {
         makeMove(Move(from: selection, to: position))
     }
 
+    private var canUndo: Bool {
+        game.playerIsHuman && game.canUndo
+    }
+
+    private func updateUndoButton() {
+        undoButton?.isEnabled = canUndo
+        undoButton?.alpha = canUndo ? 1 : 0.5
+    }
+
     private func update() {
         let gameState = game.state
         switch gameState {
@@ -155,20 +183,21 @@ extension ViewController: BoardViewDelegate {
     private func makeComputerMove() {
         if !game.playerIsHuman, let move = game.nextMove(for: game.turn) {
             makeMove(move)
+        } else {
+            updateUndoButton()
         }
     }
 
     private func makeMove(_ move: Move) {
-        let position = move.to
         guard let boardView = boardView else {
             return
         }
         let oldGame = game
-        game.move(from: move.from, to: position)
+        game.makeMove(move)
         let board1 = game.board
         let kingPosition = game.kingPosition(for: oldGame.turn)
         let wasInCheck = game.pieceIsThreatened(at: kingPosition)
-        let wasPromoted = !wasInCheck && game.canPromotePiece(at: position)
+        let wasPromoted = !wasInCheck && game.canPromotePiece(at: move.to)
         let wasHuman = oldGame.playerIsHuman
         if wasInCheck {
             game = oldGame
@@ -178,6 +207,7 @@ extension ViewController: BoardViewDelegate {
             boardView.selection = nil
             boardView.board = board1
             boardView.moves = []
+            self.updateUndoButton()
         }, completion: { [weak self] _ in
             guard let self = self, board2 == self.game.board else { return }
             if wasInCheck {
@@ -189,7 +219,7 @@ extension ViewController: BoardViewDelegate {
             }
             if wasPromoted {
                 if !wasHuman {
-                    self.game.promotePiece(at: position, to: .queen)
+                    self.game.promotePiece(at: move.to, to: .queen)
                     let board2 = self.game.board
                     UIView.animate(withDuration: 0.4, animations: {
                         boardView.board = board2
@@ -210,7 +240,7 @@ extension ViewController: BoardViewDelegate {
                         style: .default
                     ) { [weak self] _ in
                         guard let self = self else { return }
-                        self.game.promotePiece(at: position, to: piece)
+                        self.game.promotePiece(at: move.to, to: piece)
                         boardView.board = self.game.board
                         self.update()
                     })
