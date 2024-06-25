@@ -115,6 +115,7 @@
                     <connections>
                         <outlet property="blackToggle" destination="wW6-Bz-2dd" id="fCI-NQ-OR3"/>
                         <outlet property="boardView" destination="i6L-Bp-k19" id="y1g-C4-8Kp"/>
+                        <outlet property="resetButton" destination="0Eh-VO-35h" id="new-gM-5gu"/>
                         <outlet property="undoButton" destination="tWP-VW-Gwy" id="sMp-Fc-2bI"/>
                         <outlet property="whiteToggle" destination="XI6-5z-ZD0" id="2ZM-PZ-0YL"/>
                     </connections>
