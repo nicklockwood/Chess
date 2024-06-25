@@ -9,10 +9,11 @@
 import UIKit
 
 class ViewController: UIViewController {
-    private var game = Game()
+    private var game: Game = .init()
 
     @IBOutlet var boardView: BoardView?
     @IBOutlet var undoButton: UIButton?
+    @IBOutlet var resetButton: UIButton?
     @IBOutlet var whiteToggle: UISegmentedControl?
     @IBOutlet var blackToggle: UISegmentedControl?
 
@@ -33,7 +34,7 @@ class ViewController: UIViewController {
         whiteToggle?.selectedSegmentIndex = game.whiteIsHuman ? 0 : 1
         blackToggle?.selectedSegmentIndex = game.blackIsHuman ? 0 : 1
         boardView?.board = game.board
-        updateUndoButton()
+        updateUI()
         update()
 
         NotificationCenter.default.addObserver(
@@ -67,7 +68,7 @@ class ViewController: UIViewController {
         game.reset()
         UIView.animate(withDuration: 0.4, animations: {
             self.boardView?.board = self.game.board
-            self.updateUndoButton()
+            self.updateUI()
         }, completion: { [weak self] _ in
             self?.update()
         })
@@ -78,10 +79,10 @@ class ViewController: UIViewController {
         game.undo()
         UIView.animate(withDuration: 0.4, animations: {
             self.boardView?.board = self.game.board
-            self.updateUndoButton()
+            self.updateUI()
         }, completion: { [weak self] _ in
             guard let self = self else { return }
-            if !game.canUndo || self.game.playerIsHuman {
+            if !game.inProgress || self.game.playerIsHuman {
                 self.update()
             } else {
                 self.undo()
@@ -131,17 +132,24 @@ extension ViewController: BoardViewDelegate {
         }
         makeMove(Move(from: selection, to: position))
     }
+}
 
-    private var canUndo: Bool {
-        game.playerIsHuman && game.canUndo
+private extension ViewController {
+    var canUndo: Bool {
+        (game.playerIsHuman || game.state == .checkMate) && game.inProgress
     }
 
-    private func updateUndoButton() {
-        undoButton?.isEnabled = canUndo
-        undoButton?.alpha = canUndo ? 1 : 0.5
+    func updateUI() {
+        setControl(undoButton, enabled: canUndo)
+        setControl(resetButton, enabled: game.inProgress)
     }
 
-    private func update() {
+    func setControl(_ control: UIControl?, enabled: Bool) {
+        control?.isEnabled = enabled
+        control?.alpha = enabled ? 1 : 0.5
+    }
+
+    func update() {
         let gameState = game.state
         switch gameState {
         case .checkMate, .staleMate, .insufficientMaterial:
@@ -172,7 +180,7 @@ extension ViewController: BoardViewDelegate {
         }
     }
 
-    private func setSelection(_ position: Position?) {
+    func setSelection(_ position: Position?) {
         let moves = position.map(game.movesForPiece(at:)) ?? []
         UIView.animate(withDuration: 0.2, animations: {
             self.boardView?.selection = position
@@ -180,15 +188,15 @@ extension ViewController: BoardViewDelegate {
         })
     }
 
-    private func makeComputerMove() {
+    func makeComputerMove() {
         if !game.playerIsHuman, let move = game.nextMove(for: game.turn) {
             makeMove(move)
         } else {
-            updateUndoButton()
+            updateUI()
         }
     }
 
-    private func makeMove(_ move: Move) {
+    func makeMove(_ move: Move) {
         guard let boardView = boardView else {
             return
         }
@@ -207,7 +215,7 @@ extension ViewController: BoardViewDelegate {
             boardView.selection = nil
             boardView.board = board1
             boardView.moves = []
-            self.updateUndoButton()
+            self.updateUI()
         }, completion: { [weak self] _ in
             guard let self = self, board2 == self.game.board else { return }
             if wasInCheck {

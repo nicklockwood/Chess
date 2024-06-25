@@ -32,7 +32,7 @@ extension Game {
         } ?? .white
     }
 
-    var canUndo: Bool {
+    var inProgress: Bool {
         !history.isEmpty
     }
 
