@@ -82,7 +82,7 @@ class ViewController: UIViewController {
             self.updateUI()
         }, completion: { [weak self] _ in
             guard let self = self else { return }
-            if !game.inProgress || self.game.playerIsHuman {
+            if self.game.playerIsHuman() || !self.game.playerIsHuman(self.game.turn.other) {
                 self.update()
             } else {
                 self.undo()
@@ -136,7 +136,7 @@ extension ViewController: BoardViewDelegate {
 
 private extension ViewController {
     var canUndo: Bool {
-        (game.playerIsHuman || game.state == .checkMate) && game.inProgress
+        game.inProgress && (game.playerIsHuman() || game.playerIsHuman(game.turn.other))
     }
 
     func updateUI() {
@@ -189,7 +189,7 @@ private extension ViewController {
     }
 
     func makeComputerMove() {
-        if !game.playerIsHuman, let move = game.nextMove(for: game.turn) {
+        if !game.playerIsHuman(), let move = game.nextMove(for: game.turn) {
             makeMove(move)
         } else {
             updateUI()
@@ -206,7 +206,7 @@ private extension ViewController {
         let kingPosition = game.kingPosition(for: oldGame.turn)
         let wasInCheck = game.pieceIsThreatened(at: kingPosition)
         let wasPromoted = !wasInCheck && game.canPromotePiece(at: move.to)
-        let wasHuman = oldGame.playerIsHuman
+        let wasHuman = oldGame.playerIsHuman()
         if wasInCheck {
             game = oldGame
         }
