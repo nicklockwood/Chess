@@ -65,16 +65,14 @@ extension Game {
         }
     }
 
-    // MARK: Settings
+    // MARK: Game logic
 
-    var playerIsHuman: Bool {
-        switch turn {
+    func playerIsHuman(_ color: Color? = nil) -> Bool {
+        switch color ?? turn {
         case .white: return whiteIsHuman
         case .black: return blackIsHuman
         }
     }
-
-    // MARK: Game logic
 
     func canSelectPiece(at position: Position) -> Bool {
         board.piece(at: position)?.color == turn
