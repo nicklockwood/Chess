@@ -10,6 +10,7 @@ import UIKit
 
 class ViewController: UIViewController {
     private var game: Game = .init()
+    private var isPaused: Bool = false
 
     @IBOutlet var boardView: BoardView?
     @IBOutlet var undoButton: UIButton?
@@ -34,6 +35,7 @@ class ViewController: UIViewController {
         whiteToggle?.selectedSegmentIndex = game.whiteIsHuman ? 0 : 1
         blackToggle?.selectedSegmentIndex = game.blackIsHuman ? 0 : 1
         boardView?.board = game.board
+        isPaused = game.inProgress
         updateUI()
         update()
 
@@ -47,11 +49,16 @@ class ViewController: UIViewController {
 
     @objc private func didEnterBackground() {
         try? save(to: saveURL)
+        if game.inProgress {
+            pause()
+        }
     }
 
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        try? save(to: saveURL)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if isPaused {
+            pause()
+        }
     }
 
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
@@ -180,6 +187,24 @@ private extension ViewController {
         }
     }
 
+    func pause() {
+        isPaused = true
+        let alert = UIAlertController(
+            title: "Game in Progress",
+            message: "\(game.turn.rawValue.capitalized)'s turn",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "Resume", style: .default) { _ in
+            self.isPaused = false
+            self.update()
+        })
+        alert.addAction(UIAlertAction(title: "Restart", style: .default) { _ in
+            self.isPaused = false
+            self.resetGame()
+        })
+        present(alert, animated: true)
+    }
+
     func setSelection(_ position: Position?) {
         let moves = position.map(game.movesForPiece(at:)) ?? []
         UIView.animate(withDuration: 0.2, animations: {
@@ -189,7 +214,7 @@ private extension ViewController {
     }
 
     func makeComputerMove() {
-        if !game.playerIsHuman(), let move = game.nextMove(for: game.turn) {
+        if !isPaused, !game.playerIsHuman(), let move = game.nextMove(for: game.turn) {
             makeMove(move)
         } else {
             updateUI()
