@@ -189,20 +189,25 @@ private extension ViewController {
 
     func pause() {
         isPaused = true
-        let alert = UIAlertController(
-            title: "Game in Progress",
-            message: "\(game.turn.rawValue.capitalized)'s turn",
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: "Resume", style: .default) { _ in
-            self.isPaused = false
-            self.update()
-        })
-        alert.addAction(UIAlertAction(title: "Restart", style: .default) { _ in
-            self.isPaused = false
-            self.resetGame()
-        })
-        present(alert, animated: true)
+        switch game.state {
+        case .check, .idle:
+            let alert = UIAlertController(
+                title: "Game in Progress",
+                message: "\(game.turn.rawValue.capitalized)'s turn",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "Resume", style: .default) { _ in
+                self.isPaused = false
+                self.update()
+            })
+            alert.addAction(UIAlertAction(title: "Restart", style: .default) { _ in
+                self.isPaused = false
+                self.resetGame()
+            })
+            present(alert, animated: true)
+        case .checkMate, .staleMate, .insufficientMaterial:
+            update()
+        }
     }
 
     func setSelection(_ position: Position?) {
