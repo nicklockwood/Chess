@@ -8,19 +8,15 @@
 
 import Foundation
 
-@propertyWrapper public struct UserDefaultWrapper<Value> {
-    public let key: String
-    public let storage: UserDefaults = .standard
+@propertyWrapper struct UserDefaultWrapper<Value> {
+    let key: String
+    let `default`: Value
+    let storage: UserDefaults = .standard
 
-    public init(key: String) {
-        self.key = key
-    }
-
-    public var wrappedValue: Value? {
+    var wrappedValue: Value {
         get {
-            storage.value(forKey: key) as? Value
+            storage.value(forKey: key) as? Value ?? `default`
         }
-
         set {
             storage.setValue(newValue, forKey: key)
             storage.synchronize()
@@ -31,6 +27,9 @@ import Foundation
 class Storage {
     static let shared = Storage()
 
-    @UserDefaultWrapper(key: "boardTheme")
+    @UserDefaultWrapper(key: "boardTheme", default: nil)
     var boardTheme: String?
+
+    @UserDefaultWrapper(key: "flipBlackWhenHuman", default: false)
+    var flipBlackWhenHuman: Bool
 }

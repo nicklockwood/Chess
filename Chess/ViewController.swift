@@ -99,8 +99,11 @@ class ViewController: UIViewController {
     }
 
     @IBAction private func settings() {
-        let vc = SettingsViewController(selectedTheme: boardView?.theme ?? .classic)
+        let vc = SettingsViewController()
         vc.onThemeSelect = { self.boardView?.theme = $0 }
+        vc.onFlipBlackWhenHuman = {
+            self.boardView?.flipBlackPieces = $0 && self.game.blackIsHuman
+        }
         present(vc, animated: true)
     }
 }
@@ -149,6 +152,7 @@ private extension ViewController {
     func updateUI() {
         setControl(undoButton, enabled: canUndo)
         setControl(resetButton, enabled: game.inProgress)
+        boardView?.flipBlackPieces = game.blackIsHuman && Storage.shared.flipBlackWhenHuman
     }
 
     func setControl(_ control: UIControl?, enabled: Bool) {

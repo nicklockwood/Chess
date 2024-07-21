@@ -24,6 +24,11 @@ class BoardView: UIView {
     private(set) var squares: [UIView] = []
     private(set) var pieces: [String: UIImageView] = [:]
     private(set) var moveIndicators: [UIView] = []
+
+    var flipBlackPieces: Bool = false {
+        didSet { updatePieces() }
+    }
+
     var theme: Theme = .init(rawValue: Storage.shared.boardTheme ?? "") ?? .classic {
         didSet { updateTheme() }
     }
@@ -119,7 +124,10 @@ class BoardView: UIView {
                 usedIDs.insert(piece.id)
                 view.image = UIImage(named: piece.imageName)
                 view.frame = frame(x: j, y: i, size: size)
-                view.layer.transform = CATransform3DMakeScale(0.8, 0.8, 0)
+                var transform = CATransform3DMakeScale(0.8, 0.8, 0)
+                let rotate = flipBlackPieces && piece.color == .black
+                transform = CATransform3DRotate(transform, rotate ? .pi : 0, 0, 0, 1)
+                view.layer.transform = transform
             }
         }
         for (id, view) in pieces where !usedIDs.contains(id) {
@@ -198,13 +206,16 @@ private extension UIImageView {
     ) {
         let pulseView = UIImageView(frame: frame)
         pulseView.image = image
+        pulseView.layer.transform = layer.transform
         superview?.addSubview(pulseView)
         UIView.animate(
             withDuration: duration,
             delay: 0,
             options: .curveEaseOut,
             animations: {
-                pulseView.transform = .init(scaleX: scale, y: scale)
+                var transform = pulseView.layer.transform
+                transform = CATransform3DScale(transform, scale, scale, 1)
+                pulseView.layer.transform = transform
                 pulseView.alpha = 0
             }, completion: { _ in
                 pulseView.removeFromSuperview()
