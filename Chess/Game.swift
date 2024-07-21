@@ -8,6 +8,7 @@
 
 struct Move: Equatable, Codable {
     var from, to: Position
+    var promotion: PieceType?
 }
 
 enum GameState {
@@ -19,10 +20,16 @@ enum GameState {
 }
 
 struct Game: Codable {
-    private(set) var board: Board = .init()
+    private var start: Board?
+    private(set) var board: Board
     private(set) var history: [Move] = []
     var whiteIsHuman: Bool = true
     var blackIsHuman: Bool = false
+
+    init(board: Board? = nil) {
+        start = board
+        self.board = board ?? .init()
+    }
 }
 
 extension Game {
@@ -52,9 +59,9 @@ extension Game {
         return canMove ? .idle : .staleMate
     }
 
-    mutating func reset() {
-        board = Board()
-        history = []
+    mutating func reset(to state: Board? = nil) {
+        board = state ?? start ?? .init()
+        history.removeAll()
     }
 
     mutating func undo() {
@@ -201,6 +208,7 @@ extension Game {
             break
         }
         board.movePiece(from: from, to: to)
+        move.promotion.map { board.promotePiece(at: to, to: $0) }
         history.append(move)
     }
 
@@ -217,6 +225,9 @@ extension Game {
     mutating func promotePiece(at position: Position, to type: PieceType) {
         assert(canPromotePiece(at: position))
         board.promotePiece(at: position, to: type)
+        if history.last?.to == position {
+            history[history.count - 1].promotion = type
+        }
     }
 
     func movesForPiece(at position: Position) -> [Position] {
