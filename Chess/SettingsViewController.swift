@@ -10,28 +10,9 @@ import UIKit
 
 class SettingsViewController: UIViewController {
     let tableView = UITableView(frame: .zero, style: .insetGrouped)
-    var selectedTheme: Theme {
-        didSet {
-            Storage.shared.boardTheme = selectedTheme.rawValue
-            tableView.reloadData()
-        }
-    }
 
     var onThemeSelect: ((Theme) -> Void)?
-
-    init(selectedTheme: Theme?) {
-        self.selectedTheme = selectedTheme ?? .classic
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    deinit {
-        print("SettingsViewController deinit")
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    var onFlipBlackWhenHuman: ((Bool) -> Void)?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -54,28 +35,76 @@ class SettingsViewController: UIViewController {
 }
 
 extension SettingsViewController: UITableViewDataSource, UITableViewDelegate {
+    enum Section: Int, CaseIterable {
+        case settings
+        case themes
+    }
+
     func numberOfSections(in _: UITableView) -> Int {
-        1
+        Section.allCases.count
     }
 
-    func tableView(_: UITableView, titleForHeaderInSection _: Int) -> String? {
-        "Board Themes"
+    func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch Section(rawValue: section) {
+        case .settings:
+            return nil
+        case .themes:
+            return "Board Themes"
+        case nil:
+            return nil
+        }
     }
 
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        Theme.allCases.count
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        switch Section(rawValue: section) {
+        case .settings:
+            return 1
+        case .themes:
+            return Theme.allCases.count
+        case nil:
+            return 0
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let theme = Theme.allCases[indexPath.row]
-        cell.textLabel?.text = theme.rawValue
-        cell.accessoryType = selectedTheme == theme ? .checkmark : .none
+        switch Section(rawValue: indexPath.section) {
+        case .settings:
+            cell.textLabel?.text = "Flip black pieces when human"
+            let toggle = UISwitch()
+            toggle.isOn = Storage.shared.flipBlackWhenHuman
+            toggle.addTarget(self, action: #selector(toggleFlipBlack), for: .valueChanged)
+            cell.accessoryView = toggle
+        case .themes:
+            let theme = Theme.allCases[indexPath.row]
+            cell.textLabel?.text = theme.rawValue
+            let selected = Storage.shared.boardTheme == theme.rawValue
+            cell.accessoryType = selected ? .checkmark : .none
+            cell.accessoryView = nil
+        case nil:
+            break
+        }
         return cell
     }
 
+    @objc private func toggleFlipBlack() {
+        let cell = tableView.cellForRow(at: IndexPath(item: 0, section: Section.settings.rawValue))
+        let selected = (cell?.accessoryView as? UISwitch)?.isOn ?? false
+        Storage.shared.flipBlackWhenHuman = selected
+        onFlipBlackWhenHuman?(selected)
+    }
+
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        selectedTheme = Theme.allCases[indexPath.row]
-        onThemeSelect?(selectedTheme)
+        switch Section(rawValue: indexPath.section) {
+        case .settings:
+            break
+        case .themes:
+            let selectedTheme = Theme.allCases[indexPath.row]
+            Storage.shared.boardTheme = selectedTheme.rawValue
+            tableView.reloadSections([Section.themes.rawValue], with: .none)
+            onThemeSelect?(selectedTheme)
+        case nil:
+            break
+        }
     }
 }
