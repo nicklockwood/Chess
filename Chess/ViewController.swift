@@ -82,6 +82,7 @@ class ViewController: UIViewController {
         setSelection(nil)
     }
 
+/* This is the current functionality of the undo function as I understand it 
     @IBAction private func undo() {
         game.undo()
         UIView.animate(withDuration: 0.4, animations: {
@@ -97,6 +98,41 @@ class ViewController: UIViewController {
         })
         setSelection(nil)
     }
+*/
+
+/*
+Key Changes:
+
+Weak Capture in Animations: I added [weak self] to the animations block as well. This prevents a strong reference cycle in case the animation takes a long time or the view controller is dismissed before the animation completes.
+
+Guard Statement: The guard let self = self statement is included in both the animations and completion closures to ensure that self is available and to avoid unintentional captures.
+
+Additional Considerations:
+
+Memory Management: By using [weak self], you help avoid memory leaks. Make sure the game object does not strongly reference the view controller to prevent strong reference cycles.
+
+Recursion in Undo: Be cautious with calling self.undo() again in the completion block; ensure it won't lead to infinite recursion depending on your game logic.
+
+*/
+    @IBAction private func undo() {
+    game.undo() // Assuming this method correctly updates the game state.
+
+    UIView.animate(withDuration: 0.4, animations: { [weak self] in
+        guard let self = self else { return } // Capture self weakly in the animation block
+        self.boardView?.board = self.game.board // Update the board view
+        self.updateUI() // Update the UI
+    }, completion: { [weak self] _ in
+        guard let self = self else { return } // Capture self weakly in the completion block
+        if self.game.playerIsHuman() || !self.game.playerIsHuman(self.game.turn.other) {
+            self.update() // Update if conditions are met
+        } else {
+            self.undo() // Call undo again if conditions are met
+        }
+    })
+    
+    setSelection(nil) // Clear selection regardless of animation
+}
+
 
     @IBAction private func settings() {
         let vc = SettingsViewController()
