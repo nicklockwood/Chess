@@ -50,7 +50,7 @@ extension Game {
         let color = turn
         let canMove = allMoves(for: color).contains(where: { move in
             var newBoard = self
-            newBoard.board.movePiece(from: move.from, to: move.to)
+            newBoard.makeMove(move)
             return !newBoard.kingIsInCheck(for: color)
         })
         if kingIsInCheck(for: color) {
@@ -393,7 +393,9 @@ private extension Game {
         }
         let isKingSide = (to.x == 6)
         let rookPosition = Position(x: isKingSide ? 7 : 0, y: kingsRow)
-        if pieceHasMoved(at: rookPosition) {
+        guard let rook = board.piece(at: rookPosition), rook.type == .rook,
+              rook.color == this.color, !pieceHasMoved(at: rookPosition)
+        else {
             return false
         }
         return !(isKingSide ? 5 ... 6 : 1 ... 3).contains(where: {

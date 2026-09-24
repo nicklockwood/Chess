@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+- Fixed castling being permitted after the rook had been captured
+- Fixed checkmate/stalemate being reported when an en passant capture was the only escape from check
+
 ## [0.3.1](https://github.com/nicklockwood/Chess/releases/tag/0.3.1) (2024-04-22)
 
 - Prevented automatic move before pawn substitution selected
